@@ -54,7 +54,7 @@ private:
 
 	void HandleCameraMovement(float DeltaTime);
 
-	void MouseCursorLogic();
+	void MouseCursorLogic() const;
 	
 protected: /// Components
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")

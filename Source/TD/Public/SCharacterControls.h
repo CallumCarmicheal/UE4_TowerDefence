@@ -33,7 +33,7 @@ public:
 	float CameraMovementSpeed = 500.0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character")
-	float CameraRotationSpeed = 30.0;
+	float CameraRotationSpeed = 100.0;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Character")
 	float CameraZoomChangeAmount = 10.0;

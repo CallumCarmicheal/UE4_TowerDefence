@@ -12,13 +12,12 @@
 	GEngine->AddOnScreenDebugMessage(-1, 1 / 60, COLOR, FString::Printf(TEXT( TXT ), __VA_ARGS__));
 
 // Sets default values
-ASCharacter::ASCharacter()
-{
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+ASCharacter::ASCharacter() {
+	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
 	Controls = CreateDefaultSubobject<USCharacterControls>(TEXT("Controls"));
-	
+
 	// Add components
 	MovementMeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MovementMeshComp")); // TODO: Check if this is the best component for this?
 	MovementMeshComp->SetVisibility(false, false);
@@ -34,14 +33,12 @@ ASCharacter::ASCharacter()
 }
 
 // Called when the game starts or when spawned
-void ASCharacter::BeginPlay()
-{
+void ASCharacter::BeginPlay() {
 	Super::BeginPlay();
 }
 
 // Called every frame
-void ASCharacter::Tick(float DeltaTime)
-{
+void ASCharacter::Tick(float DeltaTime) {
 	Super::Tick(DeltaTime);
 
 	HandleCameraMovement(DeltaTime);
@@ -49,8 +46,7 @@ void ASCharacter::Tick(float DeltaTime)
 }
 
 // Called to bind functionality to input
-void ASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-{
+void ASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 	PlayerInputComponent->BindAxis("Movement_Forward", this, &ASCharacter::InputMovementForward);
 	PlayerInputComponent->BindAxis("Movement_Right", this, &ASCharacter::InputMovementRight);
@@ -59,7 +55,7 @@ void ASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 
 
 	DECLARE_DELEGATE_OneParam(FInputKeyHeld, const bool);
-	PlayerInputComponent->BindAction<FInputKeyHeld>("Camera_RotateMouseShow", IE_Pressed,  this, &ASCharacter::InputCameraRotate_MouseVisibility, true);
+	PlayerInputComponent->BindAction<FInputKeyHeld>("Camera_RotateMouseShow", IE_Pressed, this, &ASCharacter::InputCameraRotate_MouseVisibility, true);
 	PlayerInputComponent->BindAction<FInputKeyHeld>("Camera_RotateMouseShow", IE_Released, this, &ASCharacter::InputCameraRotate_MouseVisibility, false);
 }
 
@@ -97,16 +93,16 @@ void ASCharacter::HandleCameraMovement(float ΔT) {
 	const APlayerController* PlayerController = Cast<APlayerController>(Controller);
 
 	// Handle Camera Translation
-	const float CameraSpeedModifier		= FMath::Clamp(FMath::Abs(m_Controls.TargetZoom / 500), 0.6f, 3.6f);
-	const float CameraMovementSpeed		= Controls->CameraMovementSpeed * CameraSpeedModifier;
+	const float CameraSpeedModifier = FMath::Clamp(FMath::Abs(m_Controls.TargetZoom / 500), 0.6f, 3.6f);
+	const float CameraMovementSpeed = Controls->CameraMovementSpeed * CameraSpeedModifier;
 	const FVector MovementForwardVector = (MovementMeshComp->GetForwardVector() * m_Controls.Forward) * CameraMovementSpeed;
-	const FVector MovementRightVector   = (MovementMeshComp->GetRightVector() * m_Controls.Right) * CameraMovementSpeed;
-	const FVector UpVector				= MovementMeshComp->GetUpVector();
-	const FVector MotionVector			= (MovementForwardVector + MovementRightVector) * ΔT;
+	const FVector MovementRightVector = (MovementMeshComp->GetRightVector() * m_Controls.Right) * CameraMovementSpeed;
+	const FVector UpVector = MovementMeshComp->GetUpVector();
+	const FVector MotionVector = (MovementForwardVector + MovementRightVector) * ΔT;
 
 	FVector boundsMin, boundsMax;
 	MovementMeshComp->GetLocalBounds(boundsMin, boundsMax);
-	
+
 	FVector WorldLocation = MovementMeshComp->GetComponentLocation() + MotionVector;
 
 	// Handle Camera Zoom
@@ -115,18 +111,18 @@ void ASCharacter::HandleCameraMovement(float ΔT) {
 	// Handle camera height adjustment.
 	FVector CameraLocation = WorldLocation;
 	CameraLocation.Z = 0;
-		
+
 	// Get 3000 units above the character and 1000 below it, This will
 	// trace from top to bottom and allow us to get the top most object in the scene
 	FVector TraceStart = CameraLocation + (UpVector * 3000);
-	FVector TraceEnd   = CameraLocation - (UpVector * 1000);
+	FVector TraceEnd = CameraLocation - (UpVector * 1000);
 
 	FHitResult HitResult;
 	bool hit = UHelpers::Trace(GetWorld(), this, TraceStart, TraceEnd, HitResult, ECC_Visibility);
 
 	// This will smooth out the camera translation.
 	FVector TargetWorldLocation = FMath::VInterpTo(GetActorLocation(), WorldLocation, ΔT, 100.0f);
-	
+
 	if (hit) {
 		FString locationString = HitResult.Location.ToCompactString();
 		UI_DBG_PRINT(FColor::Orange, "Camera Trace { Loc = %s }", *locationString);
@@ -144,25 +140,28 @@ void ASCharacter::HandleCameraMovement(float ΔT) {
 	}
 
 	// Handle Camera Rotation
-	if (PlayerController && !PlayerController->ShouldShowMouseCursor()) {
-		// TODO: Smooth out user rotation.
-		
-		FRotator ActorRotation = GetActorRotation();
-		FRotator TargetRotation = ActorRotation.Add(0, (m_Controls.Rotation * ΔT) * Controls->CameraRotationSpeed, 0);
-		SetActorRotation(TargetRotation);
-		//SetActorRotation(FMath::RInterpTo(ActorRotation, TargetRotation, ΔT, 10.0f));
+	if (PlayerController && !PlayerController->bShowMouseCursor) {
+		FRotator TargetRotation = FRotator(0, (m_Controls.Rotation * Controls->CameraRotationSpeed) * ΔT, 0);
+		AddActorLocalRotation(TargetRotation);
 
 		UI_DBG_PRINT(FColor::Red, "Camera Rotation Value: { %f }", m_Controls.Rotation);
 	}
 }
 
-void ASCharacter::MouseCursorLogic() {
-	// TODO: Fix issue where mouse does not loop to other side of window!
+void ASCharacter::MouseCursorLogic() const {
+	const bool ShowCursor = !m_Controls.MouseCameraRotateHeld;
 
-	// const bool ShowCursor = !m_Controls.MouseCameraRotateHeld;
-	// 
-	// APlayerController* PlayerController = Cast<APlayerController>(Controller);
-	// if (PlayerController) {
-	// 	PlayerController->SetShowMouseCursor(ShowCursor);
-	// } 
+	APlayerController* PlayerController = Cast<APlayerController>(Controller);
+	if (PlayerController) {
+		PlayerController->bShowMouseCursor
+			= PlayerController->bEnableClickEvents
+			= PlayerController->bEnableMouseOverEvents
+			= ShowCursor;
+
+		if (ShowCursor) {
+			PlayerController->SetInputMode(FInputModeGameAndUI());
+		} else {
+			PlayerController->SetInputMode(FInputModeGameOnly());
+		}
+	}
 }
