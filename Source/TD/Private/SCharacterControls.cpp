@@ -1,0 +1,19 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
+
+#include "SCharacterControls.h"
+
+USCharacterControls::USCharacterControls()
+{
+	//
+}
+
+USCharacterControls::~USCharacterControls()
+{
+	// 
+}
+
+void USCharacterControls::BeginPlay()
+{
+	// 	
+}

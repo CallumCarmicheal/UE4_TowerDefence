@@ -1,0 +1,14 @@
+/** DO NOT MODIFY THIS FILE, ITS IS AUTOMATICALLY GENERATED ON EACH BUILD! **/
+
+// Version numbers
+#define BUILD_MAJOR_VERSION 0
+#define BUILD_MINOR_VERSION 0
+#define BUILD_PATCH_VERSION 0
+
+// Build
+#define BUILD_BUILD_NUMBER 170
+#define BUILD_BUILD_DATE "Friday, 12 February 2021"
+#define BUILD_BUILD_TIME "02:14:16"
+
+// Git
+#define BUILD_GIT_HASH "b5df3ae"
