@@ -13,5 +13,12 @@ namespace UHelpers {
 
 	bool TraceMulti(UWorld* world, AActor* actorToIgnore, const FVector& start, const FVector& dir, float length, TArray<FHitResult>& HitResults, ECollisionChannel CollisionChannel = ECC_Pawn, bool ReturnPhysMat = false);
 	bool TraceMulti(UWorld* world, AActor* actorToIgnore, const FVector& start, const FVector& end, TArray<FHitResult>& HitResults, ECollisionChannel CollisionChannel = ECC_Pawn, bool ReturnPhysMat = false);
-	
+
+
+	bool DbgTrace(bool renderTrace, UWorld* world, AActor* actorToIgnore, const FVector& start, const FVector& dir, float length, FHitResult& HitResult, ECollisionChannel CollisionChannel = ECC_Pawn, bool ReturnPhysMat = false);
+	bool DbgTrace(bool renderTrace, UWorld* world, AActor* actorToIgnore, const FVector& start, const FVector& end, FHitResult& HitResult, ECollisionChannel CollisionChannel = ECC_Pawn, bool ReturnPhysMat = false);
+
+	bool DbgTraceMulti(bool renderTrace, UWorld* world, AActor* actorToIgnore, const FVector& start, const FVector& dir, float length, TArray<FHitResult>& HitResults, ECollisionChannel CollisionChannel = ECC_Pawn, bool ReturnPhysMat = false);
+	bool DbgTraceMulti(bool renderTrace, UWorld* world, AActor* actorToIgnore, const FVector& start, const FVector& end, TArray<FHitResult>& HitResults, ECollisionChannel CollisionChannel = ECC_Pawn, bool ReturnPhysMat = false);
+
 }

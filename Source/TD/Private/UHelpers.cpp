@@ -5,15 +5,27 @@
 
 #define TD_TRACE_DBG_TAG TEXT("TD Trace")
 
-//Trace using start point, direction, and length
 bool UHelpers::Trace(UWorld* world, AActor* actorToIgnore, const FVector& start, const FVector& dir, float length, 
 	FHitResult& HitResult, ECollisionChannel collisionChannel, bool returnPhysMat)
 {
-	return Trace(world, actorToIgnore, start, start + dir * length, HitResult, collisionChannel, returnPhysMat);
+	return DbgTrace(false, world, actorToIgnore, start, dir, length, HitResult, collisionChannel, returnPhysMat);
+}
+
+//Trace using start point, direction, and length
+bool UHelpers::DbgTrace(bool renderTrace, UWorld* world, AActor* actorToIgnore, const FVector& start, const FVector& dir, float length, 
+	FHitResult& HitResult, ECollisionChannel collisionChannel, bool returnPhysMat)
+{
+	return DbgTrace(renderTrace, world, actorToIgnore, start, start + dir * length, HitResult, collisionChannel, returnPhysMat);
+}
+
+bool UHelpers::Trace(UWorld* world, AActor* actorToIgnore, const FVector& start, const FVector& end, 
+	FHitResult& HitResult, ECollisionChannel collisionChannel, bool returnPhysMat)
+{
+	return DbgTrace(false, world, actorToIgnore, start, end, HitResult, collisionChannel, returnPhysMat);
 }
 
 //Trace using start point, and end point
-bool UHelpers::Trace(UWorld* world, AActor* actorToIgnore, const FVector& start, const FVector& end, 
+bool UHelpers::DbgTrace(bool renderTrace, UWorld* world, AActor* actorToIgnore, const FVector& start, const FVector& end, 
 	FHitResult& HitResult, ECollisionChannel collisionChannel, bool returnPhysMat)
 {
 	if (!world) 
@@ -28,7 +40,6 @@ bool UHelpers::Trace(UWorld* world, AActor* actorToIgnore, const FVector& start,
 
 	//Re-initialize hit info, so you can call the function repeatedly and hit will always be fresh
 	HitResult = FHitResult(ForceInit);
-
 	
 	//Trace!
 	const bool bHitSomething = world->LineTraceSingleByChannel(
@@ -39,12 +50,14 @@ bool UHelpers::Trace(UWorld* world, AActor* actorToIgnore, const FVector& start,
 		TraceParams
 	);
 
-	// Draw a square at the impact point.
-	if (bHitSomething) 
-		DrawDebugPoint(world, HitResult.ImpactPoint, 10, FColor(255, 255, 0), false, -1);
+	if (renderTrace) {
+		// Draw a square at the impact point.
+		if (bHitSomething)
+			DrawDebugSolidBox(world, HitResult.ImpactPoint, FVector(10, 10, 10), FQuat(0, 0, 0, 0), FColor::Yellow, false, 1.0f / 60.0f);
 
-	// Draw the trace line. Red if something was hit, green if nothing was hit.
-	DrawDebugLine(world, start, end, (bHitSomething ? FColor(255, 0, 0) : FColor(0, 255, 0)), false, -1, 0, 1.5);
+		// Draw the trace line. Red if something was hit, green if nothing was hit.
+		DrawDebugLine(world, start, end, (bHitSomething ? FColor(255, 0, 0) : FColor(0, 255, 0)), false, -1, 0, 4);
+	}
 
 	return bHitSomething;
 }
@@ -52,10 +65,22 @@ bool UHelpers::Trace(UWorld* world, AActor* actorToIgnore, const FVector& start,
 bool UHelpers::TraceMulti(UWorld* world, AActor* actorToIgnore, const FVector& start, const FVector& dir, float length,
 	TArray<FHitResult>& HitResults, ECollisionChannel CollisionChannel, bool ReturnPhysMat)
 {
-	return TraceMulti(world, actorToIgnore, start, start + dir * length, HitResults, CollisionChannel, ReturnPhysMat);
+	return DbgTraceMulti(false, world, actorToIgnore, start, start + dir * length, HitResults, CollisionChannel, ReturnPhysMat);
+}
+
+bool UHelpers::DbgTraceMulti(bool renderTrace, UWorld* world, AActor* actorToIgnore, const FVector& start, const FVector& dir, float length,
+	TArray<FHitResult>& HitResults, ECollisionChannel CollisionChannel, bool ReturnPhysMat)
+{
+	return DbgTraceMulti(renderTrace, world, actorToIgnore, start, start + dir * length, HitResults, CollisionChannel, ReturnPhysMat);
 }
 
 bool UHelpers::TraceMulti(UWorld* world, AActor* actorToIgnore, const FVector& start, const FVector& end, 
+	TArray<FHitResult>& HitResults, ECollisionChannel collisionChannel, bool returnPhysMat)
+{
+	return DbgTraceMulti(false, world, actorToIgnore, start, end, HitResults, collisionChannel, returnPhysMat);
+}
+
+bool UHelpers::DbgTraceMulti(bool renderTrace, UWorld* world, AActor* actorToIgnore, const FVector& start, const FVector& end, 
 	TArray<FHitResult>& HitResults, ECollisionChannel collisionChannel, bool returnPhysMat)
 {
 	if (!world) 
@@ -80,15 +105,17 @@ bool UHelpers::TraceMulti(UWorld* world, AActor* actorToIgnore, const FVector& s
 		TraceParams
 	);
 
-	// Draw a square at the impact point.
-	if (bHitSomething) {
-		for( auto hit : HitResults) 
-			//DrawDebugPoint(world, hit.ImpactPoint, 100, FColor(255, 255, 0), false, -1);
-			DrawDebugSolidBox(world, hit.ImpactPoint, FVector(10, 10, 10), FQuat(0,0,0,0), FColor::Yellow, false, 1.0f / 60.0f);
-	}
+	if (renderTrace) {
+		// Draw a square at the impact point.
+		if (bHitSomething) {
+			for (auto hit : HitResults)
+				//DrawDebugPoint(world, hit.ImpactPoint, 100, FColor(255, 255, 0), false, -1);
+				DrawDebugSolidBox(world, hit.ImpactPoint, FVector(10, 10, 10), FQuat(0, 0, 0, 0), FColor::Yellow, false, 1.0f / 60.0f);
+		}
 
-	// Draw the trace line. Red if something was hit, green if nothing was hit.
-	DrawDebugLine(world, start, end, (bHitSomething ? FColor(255, 0, 0) : FColor(0, 255, 0)), false, -1, 0, 4);
+		// Draw the trace line. Red if something was hit, green if nothing was hit.
+		DrawDebugLine(world, start, end, (bHitSomething ? FColor(255, 0, 0) : FColor(0, 255, 0)), false, -1, 0, 4);
+	}
 
 	return bHitSomething;
 }
