@@ -1,0 +1,145 @@
+{
+	"version": "0.2.0",
+	"configurations": [
+		{
+			"name": "TD (Debug)",
+			"request": "launch",
+			"preLaunchTask": "TD Win64 Debug Build",
+			"program": "I:\\Programming\\Unreal\\UE4_TowerDefence\\TD\\Binaries\\Win64\\UE4-Win64-Debug.exe",
+			"args": [
+			],
+			"cwd": "I:\\Programming\\SDK\\UE_4.26",
+			"stopAtEntry": false,
+			"externalConsole": true,
+			"type": "cppvsdbg",
+			"visualizerFile": "I:\\Programming\\SDK\\UE_4.26\\Engine\\Extras\\VisualStudioDebugging\\UE4.natvis"
+		},
+		{
+			"name": "TD (DebugGame)",
+			"request": "launch",
+			"preLaunchTask": "TD Win64 DebugGame Build",
+			"program": "I:\\Programming\\Unreal\\UE4_TowerDefence\\TD\\Binaries\\Win64\\UE4-Win64-DebugGame.exe",
+			"args": [
+			],
+			"cwd": "I:\\Programming\\SDK\\UE_4.26",
+			"stopAtEntry": false,
+			"externalConsole": true,
+			"type": "cppvsdbg",
+			"visualizerFile": "I:\\Programming\\SDK\\UE_4.26\\Engine\\Extras\\VisualStudioDebugging\\UE4.natvis"
+		},
+		{
+			"name": "TD (Development)",
+			"request": "launch",
+			"preLaunchTask": "TD Win64 Development Build",
+			"program": "I:\\Programming\\Unreal\\UE4_TowerDefence\\TD\\Binaries\\Win64\\UE4.exe",
+			"args": [
+			],
+			"cwd": "I:\\Programming\\SDK\\UE_4.26",
+			"stopAtEntry": false,
+			"externalConsole": true,
+			"type": "cppvsdbg",
+			"visualizerFile": "I:\\Programming\\SDK\\UE_4.26\\Engine\\Extras\\VisualStudioDebugging\\UE4.natvis"
+		},
+		{
+			"name": "TD (Shipping)",
+			"request": "launch",
+			"preLaunchTask": "TD Win64 Shipping Build",
+			"program": "I:\\Programming\\Unreal\\UE4_TowerDefence\\TD\\Binaries\\Win64\\UE4-Win64-Shipping.exe",
+			"args": [
+			],
+			"cwd": "I:\\Programming\\SDK\\UE_4.26",
+			"stopAtEntry": false,
+			"externalConsole": true,
+			"type": "cppvsdbg",
+			"visualizerFile": "I:\\Programming\\SDK\\UE_4.26\\Engine\\Extras\\VisualStudioDebugging\\UE4.natvis"
+		},
+		{
+			"name": "TD (Test)",
+			"request": "launch",
+			"preLaunchTask": "TD Win64 Test Build",
+			"program": "I:\\Programming\\Unreal\\UE4_TowerDefence\\TD\\Binaries\\Win64\\UE4-Win64-Test.exe",
+			"args": [
+			],
+			"cwd": "I:\\Programming\\SDK\\UE_4.26",
+			"stopAtEntry": false,
+			"externalConsole": true,
+			"type": "cppvsdbg",
+			"visualizerFile": "I:\\Programming\\SDK\\UE_4.26\\Engine\\Extras\\VisualStudioDebugging\\UE4.natvis"
+		},
+		{
+			"name": "TDEditor (Debug)",
+			"request": "launch",
+			"preLaunchTask": "TDEditor Win64 Debug Build",
+			"program": "I:\\Programming\\SDK\\UE_4.26\\Engine\\Binaries\\Win64\\UE4Editor-Win64-Debug.exe",
+			"args": [
+				"I:\\Programming\\Unreal\\UE4_TowerDefence\\TD\\TD.uproject"
+			],
+			"cwd": "I:\\Programming\\SDK\\UE_4.26",
+			"stopAtEntry": false,
+			"externalConsole": true,
+			"type": "cppvsdbg",
+			"visualizerFile": "I:\\Programming\\SDK\\UE_4.26\\Engine\\Extras\\VisualStudioDebugging\\UE4.natvis"
+		},
+		{
+			"name": "TDEditor (DebugGame)",
+			"request": "launch",
+			"preLaunchTask": "TDEditor Win64 DebugGame Build",
+			"program": "I:\\Programming\\SDK\\UE_4.26\\Engine\\Binaries\\Win64\\UE4Editor-Win64-DebugGame.exe",
+			"args": [
+				"I:\\Programming\\Unreal\\UE4_TowerDefence\\TD\\TD.uproject"
+			],
+			"cwd": "I:\\Programming\\SDK\\UE_4.26",
+			"stopAtEntry": false,
+			"externalConsole": true,
+			"type": "cppvsdbg",
+			"visualizerFile": "I:\\Programming\\SDK\\UE_4.26\\Engine\\Extras\\VisualStudioDebugging\\UE4.natvis"
+		},
+		{
+			"name": "TDEditor (Development)",
+			"request": "launch",
+			"preLaunchTask": "TDEditor Win64 Development Build",
+			"program": "I:\\Programming\\SDK\\UE_4.26\\Engine\\Binaries\\Win64\\UE4Editor.exe",
+			"args": [
+				"I:\\Programming\\Unreal\\UE4_TowerDefence\\TD\\TD.uproject"
+			],
+			"cwd": "I:\\Programming\\SDK\\UE_4.26",
+			"stopAtEntry": false,
+			"externalConsole": true,
+			"type": "cppvsdbg",
+			"visualizerFile": "I:\\Programming\\SDK\\UE_4.26\\Engine\\Extras\\VisualStudioDebugging\\UE4.natvis"
+		},
+		{
+			"name": "Build Editor Hotswap Project",
+			"type": "clr",
+			"request": "launch",
+			"program": "I:\\Programming\\SDK\\UE_4.26\\Engine\\Build\\BatchFiles\\Build.bat",
+			"console": "integratedTerminal",
+			"args": [
+				// TDEditor Win64 Development I:\Programming\Unreal\UE4_TowerDefence\TD\TD.uproject -waitmutex
+				"TDEditor",
+				"Win64",
+				"Development",
+				"I:\\Programming\\Unreal\\UE4_TowerDefence\\TD\\TD.uproject",
+				"-waitmutex"
+			],
+			"internalConsoleOptions": "openOnFirstSessionStart",
+			"cwd": "I:\\Programming\\SDK\\UE_4.26"
+		},
+		{
+			"name": "Generate Project Files",
+			"type": "clr",
+			"request": "launch",
+			"program": "I:\\Programming\\SDK\\UE_4.26\\Engine\\Binaries\\DotNET\\UnrealBuildTool.exe",
+			"console": "externalTerminal",
+			"args": [
+				"-projectfiles",
+				"-vscode",
+				"-project=\"I:\\Programming\\Unreal\\UE4_TowerDefence\\TD\\TD.uproject\"",
+				"-game",
+				"-engine"
+			],
+			"internalConsoleOptions": "openOnSessionStart",
+			"cwd": "I:\\Programming\\SDK\\UE_4.26"
+		}
+	]
+}
