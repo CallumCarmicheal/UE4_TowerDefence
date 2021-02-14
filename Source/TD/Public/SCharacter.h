@@ -39,21 +39,21 @@ private:
 	struct {
 		float Forward = 0.0f;
 		float Right = 0.0f;
-		float Rotation = 0.0f;
-		float TargetZoom = 500.0f;
+		float RotationYaw = 0.0f;
+		float RotationPitch = 0.0f;
 
+		float TargetZoom = 500.0f;
 		bool MouseCameraRotateHeld = false;
 	} m_Controls;
-	
+
 	void InputMovementForward(float Value);
 	void InputMovementRight(float Value);
 	void InputCameraZoom(float Value);
-	void InputCameraRotation(float Value);
-
+	void InputCameraYaw(float Value);
+	void InputCameraPitch(float Value);
 	void InputCameraRotate_MouseVisibility(bool isPressed);
 
 	void HandleCameraMovement(float DeltaTime);
-
 	void MouseCursorLogic() const;
 	
 protected: /// Components

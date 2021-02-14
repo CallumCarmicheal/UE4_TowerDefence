@@ -2,14 +2,15 @@
 
 #include "SCharacter.h"
 
+#include <Runtime/Engine/Classes/Engine/Engine.h>
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
+#include "DrawDebugHelpers.h"
 
-#include <Runtime/Engine/Classes/Engine/Engine.h>
 #include "UHelpers.h"
 
 #define UI_DBG_PRINT(COLOR, TXT, ...) \
-	GEngine->AddOnScreenDebugMessage(-1, 1 / 60, COLOR, FString::Printf(TEXT( TXT ), __VA_ARGS__));
+	GEngine->AddOnScreenDebugMessage(-1, 1 / 60, COLOR, FString::Printf(TEXT(TXT), __VA_ARGS__));
 
 // Sets default values
 ASCharacter::ASCharacter() {
@@ -19,7 +20,7 @@ ASCharacter::ASCharacter() {
 	Controls = CreateDefaultSubobject<USCharacterControls>(TEXT("Controls"));
 
 	// Add components
-	MovementMeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MovementMeshComp")); // TODO: Check if this is the best component for this?
+	MovementMeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MovementMeshComp"));  // TODO: Check if this is the best component for this?
 	MovementMeshComp->SetVisibility(false, false);
 	RootComponent = MovementMeshComp;
 
@@ -51,8 +52,8 @@ void ASCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 	PlayerInputComponent->BindAxis("Movement_Forward", this, &ASCharacter::InputMovementForward);
 	PlayerInputComponent->BindAxis("Movement_Right", this, &ASCharacter::InputMovementRight);
 	PlayerInputComponent->BindAxis("Camera_Zoom", this, &ASCharacter::InputCameraZoom);
-	PlayerInputComponent->BindAxis("Camera_Rotation", this, &ASCharacter::InputCameraRotation);
-
+	PlayerInputComponent->BindAxis("Camera_Yaw", this, &ASCharacter::InputCameraYaw);
+	PlayerInputComponent->BindAxis("Camera_Pitch", this, &ASCharacter::InputCameraPitch);
 
 	DECLARE_DELEGATE_OneParam(FInputKeyHeld, const bool);
 	PlayerInputComponent->BindAction<FInputKeyHeld>("Camera_RotateMouseShow", IE_Pressed, this, &ASCharacter::InputCameraRotate_MouseVisibility, true);
@@ -68,20 +69,21 @@ void ASCharacter::InputMovementRight(float Value) {
 }
 
 void ASCharacter::InputCameraZoom(float V) {
-	check(Controls != nullptr);
-
 	const float ChangeAmount = Controls->CameraZoomChangeAmount * V;
 
 	m_Controls.TargetZoom = FMath::Clamp(
 		ChangeAmount + m_Controls.TargetZoom,
-		Controls->CameraZoomMin, Controls->CameraZoomMax
-	);
+		Controls->CameraZoomMin, Controls->CameraZoomMax);
 
 	UI_DBG_PRINT(FColor::Yellow, "V = %f, Target Zoom = %f, Current Zoom = %f", V, m_Controls.TargetZoom, SpringArmComp->TargetArmLength);
 }
 
-void ASCharacter::InputCameraRotation(float Value) {
-	m_Controls.Rotation = Value;
+void ASCharacter::InputCameraYaw(float Value) {
+	m_Controls.RotationYaw = Value;
+}
+
+void ASCharacter::InputCameraPitch(float Value) {
+	m_Controls.RotationPitch = Value;
 }
 
 void ASCharacter::InputCameraRotate_MouseVisibility(bool isPressed) {
@@ -100,10 +102,15 @@ void ASCharacter::HandleCameraMovement(float ΔT) {
 	const FVector UpVector = MovementMeshComp->GetUpVector();
 	const FVector MotionVector = (MovementForwardVector + MovementRightVector) * ΔT;
 
+	const FVector ArrowEnd = MovementMeshComp->GetComponentLocation() + (MovementMeshComp->GetForwardVector() * 100);
+	DrawDebugDirectionalArrow(GetWorld(), this->GetActorLocation(), ArrowEnd, 200.0f, FColor::Red, false, 1 / 60.0f, 0, 3.0f);
+
 	FVector boundsMin, boundsMax;
 	MovementMeshComp->GetLocalBounds(boundsMin, boundsMax);
 
+	// This will smooth out the camera translation.
 	FVector WorldLocation = MovementMeshComp->GetComponentLocation() + MotionVector;
+	FVector TargetWorldLocation = FMath::VInterpTo(GetActorLocation(), WorldLocation, ΔT, 100.0f);
 
 	// Handle Camera Zoom
 	SpringArmComp->TargetArmLength = FMath::FInterpTo(SpringArmComp->TargetArmLength, m_Controls.TargetZoom, ΔT, 10.0f);
@@ -119,10 +126,6 @@ void ASCharacter::HandleCameraMovement(float ΔT) {
 
 	FHitResult HitResult;
 	bool hit = UHelpers::Trace(GetWorld(), this, TraceStart, TraceEnd, HitResult, ECC_Visibility);
-
-	// This will smooth out the camera translation.
-	FVector TargetWorldLocation = FMath::VInterpTo(GetActorLocation(), WorldLocation, ΔT, 100.0f);
-
 	if (hit) {
 		FString locationString = HitResult.Location.ToCompactString();
 		UI_DBG_PRINT(FColor::Orange, "Camera Trace { Loc = %s }", *locationString);
@@ -141,10 +144,16 @@ void ASCharacter::HandleCameraMovement(float ΔT) {
 
 	// Handle Camera Rotation
 	if (PlayerController && !PlayerController->bShowMouseCursor) {
-		FRotator TargetRotation = FRotator(0, (m_Controls.Rotation * Controls->CameraRotationSpeed) * ΔT, 0);
+		const FRotator CurrentRotator = this->SpringArmComp->GetDesiredRotation();
+		float Pitch = FMath::ClampAngle(
+			FMath::Abs(CurrentRotator.Pitch + ((m_Controls.RotationPitch * Controls->CameraRotationSpeed) * ΔT)), 30, 89);
+
+		this->SpringArmComp->SetRelativeRotation(FRotator(Pitch * -1, 0, 0));
+
+		FRotator TargetRotation = FRotator(0, (m_Controls.RotationYaw * Controls->CameraRotationSpeed) * ΔT, 0);
 		AddActorLocalRotation(TargetRotation);
 
-		UI_DBG_PRINT(FColor::Red, "Camera Rotation Value: { %f }", m_Controls.Rotation);
+		UI_DBG_PRINT(FColor::Red, "Camera Rotation Value: { %f }", m_Controls.RotationYaw);
 	}
 }
 
@@ -153,9 +162,9 @@ void ASCharacter::MouseCursorLogic() const {
 
 	APlayerController* PlayerController = Cast<APlayerController>(Controller);
 	if (PlayerController) {
-		PlayerController->bShowMouseCursor
-			= PlayerController->bEnableClickEvents
-			= PlayerController->bEnableMouseOverEvents
+		PlayerController->bShowMouseCursor 
+			= PlayerController->bEnableClickEvents 
+			= PlayerController->bEnableMouseOverEvents 
 			= ShowCursor;
 
 		if (ShowCursor) {
